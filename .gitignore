@@ -1,0 +1,33 @@
+# --- Dataset (hosted on Roboflow, not in repo) ---
+data/train/
+data/valid/
+data/test/
+data/images/
+data/labels/
+*.zip
+
+# --- Model weights (hosted on GitHub Releases) ---
+*.pt
+*.onnx
+*.engine
+
+# --- Training outputs ---
+runs/
+wandb/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- OS / IDE ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,13 @@
+# Garden Guardian — dataset config
+# Edit `names` to match the crops actually planted in YOUR garden.
+# Use real crop names (basil, tomato...), never crop1/crop2 — renaming later is painful.
+
+path: .          # dataset root (relative to this file)
+train: train/images
+val: valid/images
+test: test/images
+
+names:
+  0: tomato
+  1: basil
+  2: lettuce

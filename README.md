@@ -7,8 +7,6 @@ itself across the lawn like a robot vacuum. Phase 1 recognizes both cultivated
 crops and selected weed species, then turns detections into safe
 recommendations. It does **not** control a motor, cutter, or sprayer yet.
 
-คำแนะนำภาษาไทยสำหรับเริ่มต้น: [docs/GETTING_STARTED_TH.md](docs/GETTING_STARTED_TH.md)
-
 ## Decision model
 
 The model learns a small, explicit set of plants:

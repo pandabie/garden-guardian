@@ -11,3 +11,6 @@ names:
   0: tomato
   1: basil
   2: lettuce
+  # Example target weeds. Replace these BEFORE labeling if your garden differs.
+  3: dandelion
+  4: crabgrass

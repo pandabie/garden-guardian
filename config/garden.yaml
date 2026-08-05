@@ -1,0 +1,21 @@
+# Keep these names exactly the same as data/data.yaml and your labels.
+classes:
+  crops:
+    - tomato
+    - basil
+    - lettuce
+  target_weeds:
+    # Replace these examples with weeds that actually grow in your garden.
+    - dandelion
+    - crabgrass
+
+safety:
+  # Low enough to notice uncertain crops and create a protective zone around them.
+  model_confidence: 0.20
+
+  # A weed becomes a removal candidate only above this higher threshold.
+  weed_candidate_confidence: 0.85
+
+  # A weed touching this extra area around a detected crop is never a candidate.
+  # This is measured in image pixels and must be calibrated for the real camera.
+  crop_exclusion_margin_px: 40

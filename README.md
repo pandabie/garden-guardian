@@ -1,52 +1,63 @@
 # 🌿 Garden Guardian
 
-> An autonomous weed-elimination robot for backyard gardens — built in phases, starting with crop detection.
+> A safety-first perception and decision system for a backyard weeding robot.
 
-<p align="center">
-  <img src="docs/demo.jpg" alt="Crop detection demo" width="700"/>
-  <br/>
-  <em>Phase 1: YOLOv8 detecting cultivated crops. Anything outside a green box is a removal candidate.</em>
-</p>
+Garden Guardian is being built as the brain of a low, round robot that drives
+itself across the lawn like a robot vacuum. Phase 1 recognizes both cultivated
+crops and selected weed species, then turns detections into safe
+recommendations. It does **not** control a motor, cutter, or sprayer yet.
 
-## 💡 Core Idea — Inverted Detection
+คำแนะนำภาษาไทยสำหรับเริ่มต้น: [docs/GETTING_STARTED_TH.md](docs/GETTING_STARTED_TH.md)
 
-Most weed-detection projects try to recognize **weeds** — but there are thousands of weed species, and datasets are scarce.
+## Decision model
 
-Garden Guardian flips the logic:
+The model learns a small, explicit set of plants:
 
 ```
-Old logic:  "This is a weed  → remove it"
-Our logic:  "This is NOT a crop I planted → remove it"
+known crop       -> protect
+known target weed + high confidence + far from crop -> removal candidate
+low confidence / unconfigured class / near crop     -> human review
+not detected                                             -> no action
 ```
 
-Since the gardener knows exactly which crops they planted, the model only needs to learn a **small, closed set of classes**. Everything else is treated as a removal candidate — with a safety rule: **if uncertain, don't touch.**
+`removal_candidate` is deliberately not an actuator command. Image coordinates
+must first be calibrated into ground-plane distances, the robot must know where
+it currently is, and a separate hardware safety layer must approve any physical
+action.
 
 ## 🗺️ Roadmap
 
 | Phase | Goal | Status |
 |---|---|---|
-| **1** | Crop Detector v0 — detect cultivated crops in photos | 🚧 In progress |
-| **2** | Image-to-garden coordinate mapping (camera calibration) | ⬜ Planned |
-| **3** | Edge deployment (Raspberry Pi / Jetson) | ⬜ Planned |
-| **4** | Gantry drive system (X-Y rail, CNC-style) | ⬜ Planned |
-| **5** | Targeted elimination head (spray / cut) | ⬜ Planned |
+| **1** | Detect crops and target weeds → safe recommendations | 🚧 In progress |
+| **2** | Ground-plane calibration: pixel → cm via homography | ⬜ Planned |
+| **3** | Coverage map: track scanned vs unscanned ground | ⬜ Planned |
+| **4** | Edge deployment (Raspberry Pi / Jetson) | ⬜ Planned |
+| **5** | Mobile base integration + hardware safety controller | ⬜ Planned |
 
 ## 🚀 Quick Start (Phase 1)
 
-### 1. Install
+### 1. Install dependencies
 
 ```bash
-git clone https://github.com/<your-username>/garden-guardian.git
-cd garden-guardian
 pip install -r requirements.txt
 ```
 
-### 2. Get the dataset
+### 2. Choose the plants
 
-Dataset images are **not** stored in this repo (see `.gitignore`).
-Labeled dataset is hosted on Roboflow: `<link coming soon>`
+Edit both files before labeling any photos:
 
-Expected layout after download:
+- `data/data.yaml`: every class the model will learn
+- `config/garden.yaml`: which classes are crops and which are target weeds
+
+The example configuration contains tomato, basil, lettuce, dandelion, and
+crabgrass. Replace these with plants actually found in your garden.
+
+### 3. Build the dataset
+
+Label **every visible instance** of the configured crops and target weeds in
+Roboflow, export in YOLO format, and place it under `data/`:
+
 
 ```
 data/
@@ -56,7 +67,13 @@ data/
 └── test/images   test/labels
 ```
 
-### 3. Train
+Dataset images are ignored by Git. Before training, check the export:
+
+```bash
+python src/utils.py
+```
+
+### 4. Train
 
 ```bash
 yolo detect train data=data/data.yaml model=yolov8n.pt epochs=100 imgsz=640
@@ -64,27 +81,54 @@ yolo detect train data=data/data.yaml model=yolov8n.pt epochs=100 imgsz=640
 
 Or open `notebooks/01_train.ipynb` for a guided walkthrough.
 
-### 4. Detect
+### 5. Observe (safe default)
 
 ```bash
-python src/detect.py --weights runs/detect/train/weights/best.pt --source path/to/garden_photo.jpg
+python src/detect.py --weights runs/detect/train/weights/best.pt --source path/to/photo.jpg
 ```
 
-Output image with bounding boxes is saved to `runs/predict/`.
+Outputs are saved under `runs/observe/`:
 
-## 🧠 Design Decisions
+- annotated images: green = protect, red = removal candidate, amber = review
+- `decisions.json`: structured image-pixel coordinates for the future planner
+- `actuation_authorized: false`: an explicit guard against treating the report
+  as permission to activate hardware
 
-- **Detect crops, not weeds** — small closed-set problem instead of open-world problem
-- **YOLOv8n** — small enough to train on a consumer gaming laptop in <1 hour, and to later run on edge hardware
-- **Gantry (rail) locomotion planned** — eliminates free navigation, the hardest robotics problem, entirely
-- **Uncertainty = no action** — false negatives (missed weed) are cheap; false positives (destroyed crop) are expensive
+Example detection in the report:
 
-## 📦 What's not in the repo
+```json
+{
+  "class_name": "dandelion",
+  "confidence": 0.94,
+  "bbox": [120.0, 80.0, 210.0, 190.0],
+  "recommendation": "removal_candidate",
+  "reason": "known_weed_above_confidence_threshold"
+}
+```
 
-| Thing | Where it lives |
-|---|---|
-| Dataset images | Roboflow (link above) |
-| Trained weights (`.pt`) | GitHub Releases |
+## Safety boundaries
+
+- Unknown objects cannot be discovered merely because they have no box. An
+  unboxed region always means **no action**, never “weed”.
+- A target weed needs a higher confidence than ordinary observation.
+- A configurable exclusion zone around every detected crop blocks candidates.
+- This cannot protect a crop that the model completely misses. Real-world use
+  therefore requires representative data, validation, calibration, and a
+  physical emergency stop.
+- The base is mobile, so there is no fixed origin to fall back on. Until the
+  robot can reliably estimate its own position, every recommendation is valid
+  only for the frame it was computed from.
+- Start in observe-only mode and review results before designing actuation.
+
+Adjust thresholds and class roles in `config/garden.yaml`. Keep the model
+confidence low enough to notice uncertain crops; keep the weed-candidate
+confidence conservative.
+
+## Tests
+
+```bash
+python -m unittest discover -s tests -v
+```
 
 ## 🛠️ Stack
 

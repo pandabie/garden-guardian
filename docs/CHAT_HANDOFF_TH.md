@@ -33,15 +33,21 @@ Garden Guardian จะเป็นสมองของหุ่นยนต์�
 - `src/detect.py` ตรวจภาพ วาดกรอบตามสถานะ และสร้าง `runs/observe/decisions.json`
 - `src/policy.py` มีกฎความปลอดภัยและเขตกันชนรอบพืชปลูก
 - `config/garden.yaml` แยกพืชปลูกกับวัชพืชเป้าหมายและตั้ง threshold
-- `data/data.yaml` มีตัวอย่างพืช `tomato`, `basil`, `lettuce` และวัชพืช
-  `dandelion`, `crabgrass`
+- `data/data.yaml` มีพืชปลูก `tomato`, `basil`, `marigold` และวัชพืช
+  `dandelion`, `hawkweed`
 - `src/ground_plane.py` เป็นโครง Phase 2 สำหรับ homography ยังไม่ได้ต่อกับ `detect.py`
 - `docs/GETTING_STARTED_TH.md` เป็นคู่มือเริ่มต้นภาษาไทย
 - `docs/DECISIONS.md` บันทึกการตัดสินใจสำคัญของโปรเจกต์
 - `notebooks/01_train.ipynb` ปรับให้ฝึกทั้งพืชปลูกและวัชพืชเป้าหมาย
 - `tests/test_policy.py` มีชุดทดสอบกฎความปลอดภัย 6 กรณี และผ่านทั้งหมด
 
-ชื่อพืชและวัชพืชทั้งหมดใน config ยังเป็นตัวอย่าง ต้องเปลี่ยนตามสวนจริงก่อนตีกรอบรูป
+**สถานะชื่อคลาส ณ 2026-08-06: ยืนยันครบทั้ง 5 คลาสจากสวนจริงแล้ว ตีกรอบรูปได้**
+พืชปลูก `tomato`, `basil`, `marigold` ชนิดละ 3 ต้น ปลูกลงดินกลางแจ้ง
+วัชพืชเป้าหมาย `dandelion` และ `hawkweed`
+
+ความเสี่ยงที่ต้องรู้ก่อนตีกรอบ: `marigold` มีดอกสีเหลืองส้มเหมือน `dandelion`
+ซึ่งเป็นการสับสนระหว่าง **พืชปลูกกับวัชพืช** — อันตรายกว่ากรณี `dandelion`/`hawkweed`
+ที่สับสนกันเองมาก ดู P-18 ใน `PROBLEMS_TH.md`
 
 ## สิ่งที่ยังไม่มี
 

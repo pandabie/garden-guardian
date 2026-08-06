@@ -48,8 +48,13 @@ Edit both files before labeling any photos:
 - `data/data.yaml`: every class the model will learn
 - `config/garden.yaml`: which classes are crops and which are target weeds
 
-The example configuration contains tomato, basil, lettuce, dandelion, and
-crabgrass. Replace these with plants actually found in your garden.
+The current configuration contains tomato, basil, marigold, dandelion, and
+hawkweed. All five classes are confirmed against the real garden as of 2026-08-06:
+three plants of each crop, planted directly in soil.
+
+Note that `marigold` (a crop, must be protected) and `dandelion` (a removal
+target) both have round yellow-orange flowers. That is the dangerous direction of
+confusion — see P-18 in `docs/PROBLEMS_TH.md` before labeling.
 
 ### 3. Build the dataset
 

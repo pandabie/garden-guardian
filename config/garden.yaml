@@ -1,13 +1,16 @@
 # Keep these names exactly the same as data/data.yaml and your labels.
 classes:
   crops:
+    # Confirmed 2026-08-06: 3 plants of each, all planted directly in soil.
     - tomato
     - basil
-    - lettuce
+    - marigold
   target_weeds:
-    # Replace these examples with weeds that actually grow in your garden.
+    # Both confirmed against the real garden 2026-08-06.
+    # These two look very similar from a low camera — see P-05. That is accepted:
+    # both are removal targets, so confusing them does not change any decision.
     - dandelion
-    - crabgrass
+    - hawkweed
 
 safety:
   # Low enough to notice uncertain crops and create a protective zone around them.

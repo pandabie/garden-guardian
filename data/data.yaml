@@ -8,9 +8,10 @@ val: valid/images
 test: test/images
 
 names:
+  # Confirmed 2026-08-06: 3 plants of each, all planted directly in soil.
   0: tomato
   1: basil
-  2: lettuce
-  # Example target weeds. Replace these BEFORE labeling if your garden differs.
+  2: marigold
+  # Target weeds, both confirmed against the real garden 2026-08-06.
   3: dandelion
-  4: crabgrass
+  4: hawkweed
